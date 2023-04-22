@@ -1,2 +1,2 @@
-mod depth;
-mod file;
+pub mod depth;
+pub mod file;
