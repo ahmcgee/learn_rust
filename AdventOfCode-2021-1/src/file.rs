@@ -1,5 +1,5 @@
 use std::fs::File;
-use std::io::{self, BufRead, BufReader};
+use std::io::{BufRead, BufReader};
 
 fn load_number_txt_to_vector(path: &String) -> Result<Vec<i32>, std::io::Error> {
     let mut numbers = Vec::<i32>::new();
@@ -45,6 +45,21 @@ mod tests {
             Ok(_) => panic!(),
             Err(e) => {
                 assert_eq!(std::io::ErrorKind::InvalidData, e.kind());
+            }
+        }
+    }
+
+    #[test]
+    fn test_load_number_text_to_vector_gracefully_handles_missing_file() {
+        // arrange
+        let file_path = String::from("./data/does_not_exist.txt");
+        // act
+        let result = load_number_txt_to_vector(&file_path);
+        // assert
+        match result {
+            Ok(_) => panic!(),
+            Err(e) => {
+                assert_eq!(std::io::ErrorKind::NotFound, e.kind())
             }
         }
     }
