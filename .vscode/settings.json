@@ -1,0 +1,5 @@
+{
+    "rust-analyzer.linkedProjects": [
+        "./AdventOfCode-2021-1/Cargo.toml"
+    ]
+}
