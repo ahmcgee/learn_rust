@@ -1,22 +1,10 @@
-
-pub fn count_depth_increments(depth_values: &Vec<i32>) -> i32 {
+pub fn count_depth_increments(depth_values: &[i32]) -> usize {
     // Uses folding to compare each depth to the previous, tracking running total of increments
-    let depth_increments_state = depth_values.into_iter().fold((None, 0), |state, n| -> (Option<i32> /* Previous depth */, i32 /* Total # depth increments */) {
-        match &state.0 {
-            // None means this is the very first depth examined, which means the depth was not increased
-            None => (Some(*n), 0),
-
-            // This is at least the second depth examined, which means the depth may have increased
-            Some(prev_n) => {
-                if prev_n < n {
-                    (Some(*n), state.1 + 1)
-                } else {
-                    (Some(*n), state.1)
-                }
-            }
-        }
-    });
-    depth_increments_state.1
+    let depth_increments = depth_values
+        .windows(2)
+        .filter(|window| -> bool { window.len() == 2 && window[0] < window[1] })
+        .count();
+    return depth_increments;
 }
 
 #[cfg(test)]
