@@ -29,7 +29,8 @@ fn main() {
 fn process_input_lines(lines: &Vec<String>) {
     match parse_course(lines) {
         Ok(parsed_lines) => {
-            println!("Calculated coordinates: {}", navigate(&parsed_lines).to_string());
+            println!("Calculated coordinates (without aim): {}", navigate(&parsed_lines, false).to_string());
+            println!("Calculated coordinates (with aim): {}", navigate(&parsed_lines, true).to_string());
         },
         Err(_) => {
             // TODO: More nuanced handling
