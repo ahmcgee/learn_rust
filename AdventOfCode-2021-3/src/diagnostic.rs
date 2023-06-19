@@ -2,9 +2,18 @@ use crate::grid::DynamicHeightGrid;
 use crate::grid::Transpose;
 use crate::binary::binary_to_number;
 
+/*
+ * Types
+ */
 pub struct DiagnosticResult {
     pub gamma_rate: u32,
     pub epsilon_rate: u32
+}
+
+impl DiagnosticResult {
+    pub fn power_consumption(&self) -> u32 {
+        self.gamma_rate * self.epsilon_rate
+    }
 }
 
 #[derive(PartialEq, Eq, Debug)]
@@ -14,12 +23,39 @@ pub struct DiagnosticParseError {
     pub why: String
 } 
 
-impl DiagnosticResult {
-    pub fn power_consumption(&self) -> u32 {
-        self.gamma_rate * self.epsilon_rate
+/*
+ * Diagnostic logic
+ */
+pub fn calculate_diagnostic_result(values: &DynamicHeightGrid<bool>) -> DiagnosticResult {
+    if values.len() == 0 {
+        // We get nonsense if we're passed an empty grid,
+        // so handle this case explicitly with result of 0
+        DiagnosticResult {
+            gamma_rate: 0,
+            epsilon_rate: 0
+        }
+    } else {
+        let values_transposed = values.transpose();
+        let collapsed_gamma: Vec<bool> = values_transposed
+            .iter()
+            .map(most_common_bool)
+            .collect();
+
+        let collapsed_epsilon: Vec<bool> = collapsed_gamma
+            .iter()
+            .map(|b| !b)
+            .collect();
+
+        DiagnosticResult {
+            gamma_rate: binary_to_number(&collapsed_gamma),
+            epsilon_rate: binary_to_number(&collapsed_epsilon)
+        }
     }
 }
 
+/*
+ * Diagnostic parsing
+ */
 pub fn diagnostic_grid_from_lines(lines: &Vec<String>) -> Result<DynamicHeightGrid<bool>, DiagnosticParseError> {
     if lines.len() == 0 {
         return Ok(DynamicHeightGrid::new(0))
@@ -51,7 +87,20 @@ pub fn diagnostic_grid_from_lines(lines: &Vec<String>) -> Result<DynamicHeightGr
     return Ok(grid);
 }
 
-pub fn char_to_bool(c: char) -> Option<bool> {
+/*
+ * Helper functions
+ */
+fn most_common_bool(booleans: &Vec<bool>) -> bool {
+    let l = booleans.len();
+    let l_true = booleans
+        .iter()
+        .filter(|b| **b)
+        .count();
+
+    l_true >= l / 2
+}
+
+fn char_to_bool(c: char) -> Option<bool> {
     match c {
         '0' => {
             Some(false)
@@ -63,43 +112,6 @@ pub fn char_to_bool(c: char) -> Option<bool> {
             None
         }
     }
-}
-
-pub fn calculate_diagnostic_result(values: &DynamicHeightGrid<bool>) -> DiagnosticResult {
-    if values.len() == 0 {
-        // We get nonsense if we're passed an empty grid,
-        // so handle this case explicitly with result of 0
-        DiagnosticResult {
-            gamma_rate: 0,
-            epsilon_rate: 0
-        }
-    } else {
-        let values_transposed = values.transpose();
-        let collapsed_gamma: Vec<bool> = values_transposed
-            .iter()
-            .map(most_common_bool)
-            .collect();
-
-        let collapsed_epsilon: Vec<bool> = collapsed_gamma
-            .iter()
-            .map(|b| !b)
-            .collect();
-
-        DiagnosticResult {
-            gamma_rate: binary_to_number(&collapsed_gamma),
-            epsilon_rate: binary_to_number(&collapsed_epsilon)
-        }
-    }
-}
-
-fn most_common_bool(booleans: &Vec<bool>) -> bool {
-    let l = booleans.len();
-    let l_true = booleans
-        .iter()
-        .filter(|b| **b)
-        .count();
-
-    l_true >= l / 2
 }
 
 #[cfg(test)]
