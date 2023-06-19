@@ -69,10 +69,20 @@ mod tests {
     use super::Transpose;
 
     #[test]
-    fn dynamic_height_grid_zero_width_is_illegal() {
+    fn dynamic_height_grid_mismatched_push_is_illegal() {
         // arrange
+        let mut grid = DynamicHeightGrid::<i32>::new(5);
         // act
+        let result = grid.push(vec![1, 2]);
         // assert
+        match result {
+            Ok(_) => {
+                panic!("Expected failure");
+            },
+            Err(e) => {
+                assert_eq!("This grid supports rows of length 5, but got a row of length 2", e);
+            }
+        }
     }
 
     #[test]
